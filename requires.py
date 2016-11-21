@@ -8,7 +8,7 @@ from charms.reactive import scopes
 class CNIPluginClient(RelationBase):
     scope = scopes.UNIT
 
-    @hook('{requires:cni-plugin}-relation-{joined,changed}')
+    @hook('{requires:kubernetes-cni}-relation-{joined,changed}')
     def changed(self):
         ''' Indicate the relation is connected, and if the relation data is
         set it is also available. '''
@@ -20,7 +20,7 @@ class CNIPluginClient(RelationBase):
         elif config['is_master'] is False:
             self.set_state('{relation_name}.is-worker')
 
-    @hook('{requires:cni-plugin}-relation-{departed}')
+    @hook('{requires:kubernetes-cni}-relation-{departed}')
     def broken(self):
         ''' Indicate the relation is no longer available and not connected. '''
         self.remove_state('{relation_name}.connected')
