@@ -12,7 +12,7 @@ class CNIPluginProvider(RelationBase):
     def joined_or_changed(self):
         ''' Set the connected state from the provides side of the relation. '''
         self.set_state('{relation_name}.connected')
-        if self.get_remote('available') is True:
+        if self.get_remote('available') == 'True':
             self.set_state('{relation_name}.available')
 
     @hook('{provides:kubernetes-cni}-relation-{departed}')

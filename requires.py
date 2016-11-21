@@ -14,9 +14,9 @@ class CNIPluginClient(RelationBase):
         set it is also available. '''
         self.set_state('{relation_name}.connected')
         config = self.get_config()
-        if config['is_master'] is True:
+        if config['is_master'] == 'True':
             self.set_state('{relation_name}.is-master')
-        elif config['is_master'] is False:
+        elif config['is_master'] == 'False':
             self.set_state('{relation_name}.is-worker')
 
     @hook('{requires:kubernetes-cni}-relation-{departed}')
