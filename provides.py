@@ -20,6 +20,7 @@ class CNIPluginProvider(RelationBase):
         '''Remove connected state from the provides side of the relation. '''
         self.remove_state('{relation_name}.connected')
         self.remove_state('{relation_name}.available')
+        self.remove_state('{relation_name}.configured')
 
     def set_config(self, is_master, kubeconfig_path):
         ''' Relays a dict of kubernetes configuration information. '''
@@ -27,3 +28,4 @@ class CNIPluginProvider(RelationBase):
             'is_master': is_master,
             'kubeconfig_path': kubeconfig_path
         })
+        self.set_state('{relation_name}.configured')
