@@ -23,7 +23,8 @@ class CNIPluginClient(RelationBase):
     def broken(self):
         ''' Indicate the relation is no longer available and not connected. '''
         self.remove_state('{relation_name}.connected')
-        # TODO: Remove more states?
+        self.remove_state('{relation_name}.is-master')
+        self.remove_state('{relation_name}.is-worker')
 
     def get_config(self):
         ''' Get the kubernetes configuration information. '''
