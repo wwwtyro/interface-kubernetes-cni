@@ -24,7 +24,7 @@ class CNIPluginProvider(RelationBase):
 
     def set_config(self, is_master, kubeconfig_path):
         ''' Relays a dict of kubernetes configuration information. '''
-        self.set_remote(data = {
+        self.set_remote(data={
             'is_master': is_master,
             'kubeconfig_path': kubeconfig_path
         })
