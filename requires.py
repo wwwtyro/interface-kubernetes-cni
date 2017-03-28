@@ -33,5 +33,8 @@ class CNIPluginClient(RelationBase):
             'kubeconfig_path': self.get_remote('kubeconfig_path')
         }
 
-    def set_available(self):
-        self.set_remote('available', True)
+    def set_config(self, cidr):
+        ''' Sets the CNI configuration information. '''
+        self.set_remote(data={
+            'cidr': cidr
+        })
