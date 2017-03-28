@@ -12,7 +12,7 @@ class CNIPluginProvider(RelationBase):
     def joined_or_changed(self):
         ''' Set the connected state from the provides side of the relation. '''
         self.set_state('{relation_name}.connected')
-        if self.get_remote('available') == 'True':
+        if self.config_available():
             self.set_state('{relation_name}.available')
 
     @hook('{provides:kubernetes-cni}-relation-{departed}')
@@ -29,3 +29,15 @@ class CNIPluginProvider(RelationBase):
             'kubeconfig_path': kubeconfig_path
         })
         self.set_state('{relation_name}.configured')
+
+    def config_available(self):
+        ''' Ensures all config from the CNI plugin is available. '''
+        if not self.get_remote('cidr'):
+            return False
+        return True
+
+    def get_config(self):
+        ''' Returns all config from the CNI plugin. '''
+        return {
+            'cidr': self.get_remote('cidr'),
+        }
