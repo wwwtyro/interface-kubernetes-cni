@@ -16,8 +16,12 @@ class CNIPluginClient(RelationBase):
         config = self.get_config()
         if config['is_master'] == 'True':
             self.set_state('{relation_name}.is-master')
+            self.set_state('{relation_name}.configured')
         elif config['is_master'] == 'False':
             self.set_state('{relation_name}.is-worker')
+            self.set_state('{relation_name}.configured')
+        else:
+            self.remove_state('{relation_name}.configured')
 
     @hook('{requires:kubernetes-cni}-relation-{departed}')
     def broken(self):
@@ -25,6 +29,7 @@ class CNIPluginClient(RelationBase):
         self.remove_state('{relation_name}.connected')
         self.remove_state('{relation_name}.is-master')
         self.remove_state('{relation_name}.is-worker')
+        self.remove_state('{relation_name}.configured')
 
     def get_config(self):
         ''' Get the kubernetes configuration information. '''
