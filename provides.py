@@ -1,43 +1,43 @@
 #!/usr/bin/python
 
-from charms.reactive import RelationBase
-from charms.reactive import hook
-from charms.reactive import scopes
+from charms.reactive import Endpoint
+from charms.reactive import when, when_not
+from charms.reactive import set_state, remove_state
 
 
-class CNIPluginProvider(RelationBase):
-    scope = scopes.GLOBAL
+class CNIPluginProvider(Endpoint):
 
-    @hook('{provides:kubernetes-cni}-relation-{joined,changed}')
-    def joined_or_changed(self):
+    @when('endpoint.{endpoint_name}.changed')
+    def changed(self):
         ''' Set the connected state from the provides side of the relation. '''
-        self.set_state('{relation_name}.connected')
+        set_state(self.expand_name('{endpoint_name}.connected'))
         if self.config_available():
-            self.set_state('{relation_name}.available')
+            set_state(self.expand_name('{endpoint_name}.available'))
+        remove_state(self.expand_name('endpoint.{endpoint_name}.changed'))
 
-    @hook('{provides:kubernetes-cni}-relation-{departed}')
+    @when_not('endpoint.{endpoint_name}.joined')
     def broken_or_departed(self):
         '''Remove connected state from the provides side of the relation. '''
-        self.remove_state('{relation_name}.connected')
-        self.remove_state('{relation_name}.available')
-        self.remove_state('{relation_name}.configured')
+        remove_state(self.expand_name('{endpoint_name}.connected'))
+        remove_state(self.expand_name('{endpoint_name}.available'))
+        remove_state(self.expand_name('{endpoint_name}.configured'))
 
     def set_config(self, is_master, kubeconfig_path):
         ''' Relays a dict of kubernetes configuration information. '''
-        self.set_remote(data={
-            'is_master': is_master,
-            'kubeconfig_path': kubeconfig_path
-        })
-        self.set_state('{relation_name}.configured')
+        for relation in self.relations:
+            relation.to_publish_raw.update({
+                'is_master': is_master,
+                'kubeconfig_path': kubeconfig_path
+            })
+        set_state(self.expand_name('{endpoint_name}.configured'))
 
     def config_available(self):
         ''' Ensures all config from the CNI plugin is available. '''
-        if not self.get_remote('cidr'):
+        cidr = self.all_joined_units.received_raw['cidr']
+        if not cidr:
             return False
         return True
 
     def get_config(self):
         ''' Returns all config from the CNI plugin. '''
-        return {
-            'cidr': self.get_remote('cidr'),
-        }
+        return self.all_joined_units.received_raw
