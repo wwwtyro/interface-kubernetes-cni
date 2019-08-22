@@ -1,13 +1,14 @@
 #!/usr/bin/python
 
 from charms.reactive import Endpoint
-from charms.reactive import when, when_not
+from charms.reactive import when_any, when_not
 from charms.reactive import set_state, remove_state
 
 
 class CNIPluginClient(Endpoint):
 
-    @when('endpoint.{endpoint_name}.changed')
+    @when_any('endpoint.{endpoint_name}.joined',
+              'endpoint.{endpoint_name}.changed')
     def changed(self):
         ''' Indicate the relation is connected, and if the relation data is
         set it is also available. '''
