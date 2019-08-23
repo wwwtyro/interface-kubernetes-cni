@@ -1,13 +1,14 @@
 #!/usr/bin/python
 
 from charms.reactive import Endpoint
-from charms.reactive import when, when_not
+from charms.reactive import when_any, when_not
 from charms.reactive import set_state, remove_state
 
 
 class CNIPluginProvider(Endpoint):
 
-    @when('endpoint.{endpoint_name}.changed')
+    @when_any('endpoint.{endpoint_name}.joined',
+              'endpoint.{endpoint_name}.changed')
     def changed(self):
         ''' Set the connected state from the provides side of the relation. '''
         set_state(self.expand_name('{endpoint_name}.connected'))
