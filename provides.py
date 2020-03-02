@@ -53,6 +53,15 @@ class CNIPluginProvider(Endpoint):
         )
 
     def get_config(self, default=None):
+        ''' Get CNI config for one related application.
+
+        If default is specified, and there is a related application with a
+        matching name, then that application is chosen. Otherwise, the
+        application is chosen alphabetically.
+
+        Whichever application is chosen, that application's CNI config is
+        returned.
+        '''
         configs = self.get_configs()
         if default and default not in configs:
             msg = 'relation not found for default CNI %s, ignoring' % default
@@ -64,6 +73,21 @@ class CNIPluginProvider(Endpoint):
             return configs[sorted(configs)[0]]
 
     def get_configs(self):
+        ''' Get CNI configs for all related applications.
+
+        This returns a mapping of application names to CNI configs. Here's an
+        example return value:
+        {
+            'flannel': {
+                'cidr': '10.1.0.0/16',
+                'cni-conf-file': '10-flannel.conflist'
+            },
+            'calico': {
+                'cidr': '192.168.0.0/16',
+                'cni-conf-file': '10-calico.conflist'
+            }
+        }
+        '''
         return {
             relation.application_name: relation.joined_units.received_raw
             for relation in self.relations if relation.application_name
