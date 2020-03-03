@@ -36,9 +36,10 @@ class CNIPluginClient(Endpoint):
         ''' Get the kubernetes configuration information. '''
         return self.all_joined_units.received_raw
 
-    def set_config(self, cidr):
+    def set_config(self, cidr, cni_conf_file):
         ''' Sets the CNI configuration information. '''
         for relation in self.relations:
             relation.to_publish_raw.update({
                 'cidr': cidr,
+                'cni-conf-file': cni_conf_file
             })
