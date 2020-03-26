@@ -2,29 +2,18 @@
 
 from charmhelpers.core import hookenv
 from charms.reactive import Endpoint
-from charms.reactive import when_any, when_not
-from charms.reactive import set_state, remove_state
+from charms.reactive import toggle_flag, is_flag_set, clear_flag, set_flag
 
 
 class CNIPluginProvider(Endpoint):
-
-    @when_any('endpoint.{endpoint_name}.changed')
-    def changed(self):
-        ''' Set the connected state from the provides side of the relation. '''
-        set_state(self.expand_name('{endpoint_name}.connected'))
-        if self.config_available():
-            set_state(self.expand_name('{endpoint_name}.available'))
-        else:
-            remove_state(self.expand_name('{endpoint_name}.available'))
-        remove_state(self.expand_name('{endpoint_name}.configured'))
-        remove_state(self.expand_name('endpoint.{endpoint_name}.changed'))
-
-    @when_not('endpoint.{endpoint_name}.joined')
-    def broken_or_departed(self):
-        '''Remove connected state from the provides side of the relation. '''
-        remove_state(self.expand_name('{endpoint_name}.connected'))
-        remove_state(self.expand_name('{endpoint_name}.available'))
-        remove_state(self.expand_name('{endpoint_name}.configured'))
+    def manage_flags(self):
+        toggle_flag(self.expand_name('{endpoint_name}.connected'),
+                    self.is_joined)
+        toggle_flag(self.expand_name('{endpoint_name}.available'),
+                    self.config_available())
+        if is_flag_set(self.expand_name('endpoint.{endpoint_name}.changed')):
+            clear_flag(self.expand_name('{endpoint_name}.configured'))
+            clear_flag(self.expand_name('endpoint.{endpoint_name}.changed'))
 
     def set_config(self, is_master, kubeconfig_path):
         ''' Relays a dict of kubernetes configuration information. '''
@@ -33,7 +22,7 @@ class CNIPluginProvider(Endpoint):
                 'is_master': is_master,
                 'kubeconfig_path': kubeconfig_path
             })
-        set_state(self.expand_name('{endpoint_name}.configured'))
+        set_flag(self.expand_name('{endpoint_name}.configured'))
 
     def config_available(self):
         ''' Ensures all config from the CNI plugin is available. '''
@@ -63,14 +52,16 @@ class CNIPluginProvider(Endpoint):
         returned.
         '''
         configs = self.get_configs()
-        if default and default not in configs:
+        if not configs:
+            return {}
+        elif default and default not in configs:
             msg = 'relation not found for default CNI %s, ignoring' % default
             hookenv.log(msg, level='WARN')
             return self.get_config()
         elif default:
-            return configs.get(default)
+            return configs.get(default, {})
         else:
-            return configs[sorted(configs)[0]]
+            return configs.get(sorted(configs)[0], {})
 
     def get_configs(self):
         ''' Get CNI configs for all related applications.

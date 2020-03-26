@@ -14,7 +14,7 @@ def test_set_config():
             'is_master': False,
             'kubeconfig_path': '/path/to/kubeconfig'
         })
-    charms.reactive.set_state.assert_called_once_with(
+    charms.reactive.set_flag.assert_called_once_with(
         'cni.configured'
     )
 
