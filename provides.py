@@ -2,7 +2,7 @@
 
 from charmhelpers.core import hookenv
 from charms.reactive import Endpoint
-from charms.reactive import toggle_flag, is_flag, clear_flag, set_flag
+from charms.reactive import toggle_flag, is_flag_set, clear_flag, set_flag
 
 
 class CNIPluginProvider(Endpoint):
@@ -11,7 +11,7 @@ class CNIPluginProvider(Endpoint):
                     self.is_joined)
         toggle_flag(self.expand_name('{endpoint_name}.available'),
                     self.config_available())
-        if is_flag(self.expand_name('endpoint.{endpoint_name}.changed')):
+        if is_flag_set(self.expand_name('endpoint.{endpoint_name}.changed')):
             clear_flag(self.expand_name('{endpoint_name}.configured'))
             clear_flag(self.expand_name('endpoint.{endpoint_name}.changed'))
 
