@@ -28,8 +28,8 @@ class CNIPluginProvider(Endpoint):
         ''' Ensures all config from the CNI plugin is available. '''
         goal_state = hookenv.goal_state()
         related_apps = [
-            name for name in goal_state['relations'][self.endpoint_name]
-            if '/' not in name
+            app for app in goal_state.get('relations', {}).get(self.endpoint_name, '')
+            if '/' not in app
         ]
         if not related_apps:
             return False

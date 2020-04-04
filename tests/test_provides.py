@@ -53,6 +53,9 @@ def test_config_available():
     provider.relations[0].application_name = 'app0'
     provider.relations[1].application_name = 'app1'
 
+    def set_no_data():
+        charmhelpers.core.hookenv.goal_state.return_value = {}
+
     def set_base_data():
         charmhelpers.core.hookenv.goal_state.return_value = {
             'relations': {
@@ -71,7 +74,12 @@ def test_config_available():
             'cni-conf-file': '10-app1.conflist'
         }
 
-    # if there are no related apps, then config is not available yet
+    # if there are no relations, then config is not available yet
+    set_no_data()
+    goal_state = charmhelpers.core.hookenv.goal_state()
+    assert not provider.config_available()
+
+    # if there are no related cni apps, then config is not available yet
     set_base_data()
     goal_state = charmhelpers.core.hookenv.goal_state()
     goal_state['relations']['cni'] = {}
