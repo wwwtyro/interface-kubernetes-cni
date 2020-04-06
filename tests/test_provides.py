@@ -71,7 +71,13 @@ def test_config_available():
             'cni-conf-file': '10-app1.conflist'
         }
 
-    # if there are no related apps, then config is not available yet
+    # if there are no cni relations, then config is not available yet
+    set_base_data()
+    goal_state = charmhelpers.core.hookenv.goal_state()
+    goal_state['relations'] = {}
+    assert not provider.config_available()
+
+    # if there are no related cni apps, then config is not available yet
     set_base_data()
     goal_state = charmhelpers.core.hookenv.goal_state()
     goal_state['relations']['cni'] = {}
