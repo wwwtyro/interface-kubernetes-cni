@@ -1,11 +1,22 @@
 #!/usr/bin/python
 
+from charmhelpers.core import unitdata
 from charms.reactive import Endpoint
 from charms.reactive import when_any, when_not
 from charms.reactive import set_state, remove_state
 
+db = unitdata.kv()
+
 
 class CNIPluginClient(Endpoint):
+    def manage_flags(self):
+        kubeconfig_hash = self.get_config().get('kubeconfig-hash')
+        kubeconfig_hash_key = self.expand_name(
+            '{endpoint_name}.kubeconfig-hash'
+        )
+        if kubeconfig_hash != db.get(kubeconfig_hash_key):
+            set_state(self.expand_name('{endpoint_name}.kubeconfig-changed'))
+            db.set(kubeconfig_hash_key, kubeconfig_hash)
 
     @when_any('endpoint.{endpoint_name}.joined',
               'endpoint.{endpoint_name}.changed')

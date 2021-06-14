@@ -6,8 +6,7 @@ import requires
 def test_get_config():
     client = requires.CNIPluginClient()
     config = {
-        'is_master': False,
-        'kubeconfig_path': '/path/to/kubeconfig'
+        'is_master': False
     }
     client.all_joined_units.received_raw = config
     assert client.get_config() == config

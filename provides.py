@@ -1,6 +1,8 @@
 #!/usr/bin/python
 
 from charmhelpers.core import hookenv
+from charmhelpers.core.host import file_hash
+from charms.layer.kubernetes_common import kubeclientconfig_path
 from charms.reactive import Endpoint
 from charms.reactive import toggle_flag, is_flag_set, clear_flag, set_flag
 
@@ -15,12 +17,11 @@ class CNIPluginProvider(Endpoint):
             clear_flag(self.expand_name('{endpoint_name}.configured'))
             clear_flag(self.expand_name('endpoint.{endpoint_name}.changed'))
 
-    def set_config(self, is_master, kubeconfig_path):
+    def set_config(self, is_master):
         ''' Relays a dict of kubernetes configuration information. '''
         for relation in self.relations:
             relation.to_publish_raw.update({
-                'is_master': is_master,
-                'kubeconfig_path': kubeconfig_path
+                'is_master': is_master
             })
         set_flag(self.expand_name('{endpoint_name}.configured'))
 
@@ -83,3 +84,10 @@ class CNIPluginProvider(Endpoint):
             relation.application_name: relation.joined_units.received_raw
             for relation in self.relations if relation.application_name
         }
+
+    def notify_kubeconfig_changed(self):
+        kubeconfig_hash = file_hash(kubeclientconfig_path)
+        for relation in self.relations:
+            relation.to_publish_raw.update({
+                'kubeconfig-hash': kubeconfig_hash
+            })

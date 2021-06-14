@@ -11,8 +11,7 @@ def test_set_config():
     provider.set_config(False, '/path/to/kubeconfig')
     for relation in provider.relations:
         relation.to_publish_raw.update.assert_called_once_with({
-            'is_master': False,
-            'kubeconfig_path': '/path/to/kubeconfig'
+            'is_master': False
         })
     charms.reactive.set_flag.assert_called_once_with(
         'cni.configured'
