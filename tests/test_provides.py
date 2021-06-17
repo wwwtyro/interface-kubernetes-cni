@@ -92,3 +92,13 @@ def test_config_available():
     # otherwise, config is available
     set_base_data()
     assert provider.config_available()
+
+
+def test_notify_kubeconfig_changed():
+    charmhelpers.core.host.file_hash.return_value = "hash"
+    provider = provides.CNIPluginProvider("cni", [1, 2])
+    provider.notify_kubeconfig_changed()
+    assert [r.to_publish_raw for r in provider.relations] == [
+        {"kubeconfig-hash": "hash"},
+        {"kubeconfig-hash": "hash"},
+    ]
