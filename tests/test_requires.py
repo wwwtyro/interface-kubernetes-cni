@@ -23,8 +23,10 @@ def test_manage_flags():
     client = requires.CNIPluginClient("cni", [1])
     client.all_joined_units.received_raw["kubeconfig-hash"] = "hash"
     client.manage_flags()
-    assert is_flag_set("cni.kubeconfig-changed")
+    assert is_flag_set("cni.kubeconfig.available")
+    assert is_flag_set("cni.kubeconfig.changed")
 
-    clear_flag("cni.kubeconfig-changed")
+    clear_flag("cni.kubeconfig.changed")
     client.manage_flags()
-    assert not is_flag_set("cni.kubeconfig-changed")
+    assert is_flag_set("cni.kubeconfig.available")
+    assert not is_flag_set("cni.kubeconfig.changed")
