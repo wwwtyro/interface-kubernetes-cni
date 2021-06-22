@@ -1,23 +1,4 @@
-import sys
-from unittest.mock import MagicMock
-
-charmhelpers = MagicMock()
-sys.modules['charmhelpers'] = charmhelpers
-sys.modules['charmhelpers.core'] = charmhelpers.core
-sys.modules['charmhelpers.core.hookenv'] = charmhelpers.core.hookenv
-
-charms = MagicMock()
-sys.modules['charms'] = charms
-sys.modules['charms.reactive'] = charms.reactive
+import charms.unit_test
 
 
-class MockEndpoint(MagicMock):
-    @property
-    def endpoint_name(self):
-        return 'cni'
-
-    def expand_name(self, name):
-        return name.replace('{endpoint_name}', self.endpoint_name)
-
-
-charms.reactive.Endpoint = MockEndpoint
+charms.unit_test.patch_reactive()
